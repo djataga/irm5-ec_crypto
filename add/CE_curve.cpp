@@ -38,25 +38,26 @@ CE_point* CE_curve::add(const CE_point* P, const CE_point* Q){
 		}
 	}
 	else{
-		//compute the slope
+		//compute the slope		
 		mpz_t s;
 		mpz_t denom;
 		
 		mpz_init_set(s, P->y);
 		mpz_sub(s, s, Q->y);
 	
-		mpz_init_set(denom, P->x);				
+		mpz_init_set(denom, P->x);			
 		mpz_sub(denom, denom, Q->x);		
 		mpz_invert(denom, denom, this->p);		
-		mpz_mul(s, s, denom);					
+		mpz_mul(s, s, denom);
+		mpz_mod(s, s, this->p);
 		
 		//compute R coordinate
 		mpz_t xR;
 		mpz_t yR;
 
 		//xR = s^2 - (xP + xQ)
-		mpz_init_set(xR, s);
-		mpz_mul(xR, xR, s);
+		mpz_init(xR);
+		mpz_powm_ui(xR, s, 2, this->p);
 		mpz_sub(xR, xR, P->x);
 		mpz_sub(xR, xR, Q->x);
 		mpz_mod(xR, xR, this->p);
@@ -113,15 +114,14 @@ CE_point* CE_curve::dbl(const CE_point* P){
 		result->inf = true;
 		return result;
 	}
-	else{
-		char* test = new char[100];
+	else{		
 		//compute the slope
 		mpz_t s;
-		mpz_init_set(s, P->x);
-		mpz_mul(s, s, s);
+		mpz_init(s);
+		mpz_powm_ui(s, P->x, 2, this->p);
 		mpz_mul_ui(s, s, 3);
 		mpz_add(s, s, this->a4);
-				
+		
 		mpz_t denom;
 		mpz_init_set(denom, P->y);
 		mpz_mul_ui(denom, denom, 2);
@@ -131,13 +131,13 @@ CE_point* CE_curve::dbl(const CE_point* P){
 		//compute xR and yR
 		mpz_t xR;
 		mpz_t yR;
+		
 		//xR = s^2 - 2xP
-		mpz_init_set(xR, s);
-		mpz_mul(xR, xR, s);
+		mpz_init(xR);
+		mpz_powm_ui(xR, s, 2, this->p);
 		mpz_sub(xR, xR, P->x);
 		mpz_sub(xR, xR, P->x);
 		mpz_mod(xR, xR, this->p);
-		
 		
 		//yR = s(xP - xR) - yP
 		mpz_init_set(yR, P->x);
