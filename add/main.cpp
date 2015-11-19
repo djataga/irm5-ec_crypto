@@ -38,17 +38,31 @@ int main(int argc, char **argv)
 		
 	//test
 	CE_point* point3;
-	
+	CE_point* point4;
 	//using
-	point3 = ec_curve->mul(ec_curve->g, &ec_curve->n);	
-	//point3 = ec_curve->dbl(ec_curve->g);
-	//point3 = ec_curve->add(ec_curve->g, ec_curve->g);
-		
-	char* x = new char[100];
-	char* y = new char[100];
-	mpz_get_str(x, 10, point3->x);
-	mpz_get_str(y, 10, point3->y);
 	
-	printf("point3: x=%s, y=%s, inf=%d\n", x, y, point3->inf);
+	int count=0;
+	for (int i=1;i<=5000;i++){
+		mpz_t ii;
+		mpz_init_set_ui(ii, i);
+		point4 = ec_curve->mul(ec_curve->g, &ii);
+		point3 = ec_curve->mul(point4, &ec_curve->n);	
+		//point3 = ec_curve->dbl(ec_curve->g);
+		//point3 = ec_curve->add(ec_curve->g, ec_curve->g);
+			
+		char* x = new char[100];
+		char* y = new char[100];
+		mpz_get_str(x, 10, point3->x);
+		mpz_get_str(y, 10, point3->y);
+		
+		printf("i=%d\n", i);
+		if (!point3->inf){
+			count++;
+			mpz_get_str(x, 10, point4->x);
+			mpz_get_str(y, 10, point4->y);
+			printf("point4 at i=%d: x=%s, y=%s\n", i, x, y);
+		}
+	}
+	printf("count=%d", count);
 	return 0;
 }
